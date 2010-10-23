@@ -1,35 +1,35 @@
 require 'rake/clean'
 
 HOME  = ENV['HOME']
-FILES = ['Rakefile', '.bashrc', '.zshrc', '.vimrc', '.screenrc']
+FILES = ['Rakefile', '.bashrc', '.zshrc', '.vimrc', '.screenrc', 'bin', '.zsh']
 
 CLEAN.include(FILES.map {|f| "#{HOME}/#{f}"})
 
-desc 'deploy all files'
-task 'deploy' do
-  FILES.each do |f|
+desc 'environment install'
+task :env_install do
+  (FILES).each do |f|
     source = (f =~ /^\./) ? ('dot' + f) : f
     FileUtils.ln_s "#{HOME}/dev/environment/#{source}", "#{HOME}/#{f}"
   end
 end
 
-desc 'diff all files'
-task :diff do
+desc 'environment git diff'
+task :env_diff do
   sh "cd #{HOME}/dev/environment/; git diff"
 end
 
-desc 'add all files'
-task :add do
+desc 'environment git add'
+task :env_add do
   sh "cd #{HOME}/dev/environment/; git add ."
 end
 
-desc 'commit all files'
-task :commit do
+desc 'environment git commit'
+task :env_commit do
   sh "cd #{HOME}/dev/environment/; git commit"
 end
 
-desc 'push all files'
-task :push do
+desc 'environment git push'
+task :env_push do
   sh "cd #{HOME}/dev/environment/; git push origin master"
 end
 
