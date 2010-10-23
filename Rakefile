@@ -16,3 +16,13 @@ task :diff do
   sh "cd #{HOME}/dev/environment/; git diff"
 end
 
+desc 'add all files'
+task :add do
+  sh "cd #{HOME}/dev/environment/; git add ."
+end
+
+desc 'commit all files'
+task :commit do
+  sh "cd #{HOME}/dev/environment/; git commit"
+end
+
