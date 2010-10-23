@@ -1,7 +1,10 @@
+require 'rake/clean'
 
 # config
 HOME  = ENV['HOME']
 FILES = ['Rakefile', '.bashrc', '.zshrc', '.vimrc', '.screenrc']
+
+CLEAN.include(FILES.map {|f| "#{HOME}/#{f}"})
 
 desc 'deploy all files'
 task 'deploy' do
