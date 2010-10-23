@@ -1,0 +1,5 @@
+#compdef gistpad
+local context list
+list=$(gistpad -l)
+typeset -A opt_args
+_multi_parts '\n' "($list)" && return 0

@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+# Usage: gistpad [-pclz] filename
+require 'optparse'
+require 'readline'
+require 'rubygems'
+require 'gisty'
+
+class Gistpad < Gisty
+
+  @commands = {
+    :push   => 'push origin master', 
+    :commit => "commit %s -m 'auto-commit by gistpad.'"
+  }
+  @commands.each do |method, option|
+    define_method method do |id, file|
+      ret, dir = nil, [@dir.to_s, id].join('/')
+      FileUtils.cd dir do
+        ret = Kernel.system "git #{option}" % file
+      end
+      ret
+    end
+  end 
+
+  def index(file)
+    Pathname.glob(@dir.to_s + '/*/*').inject([]) do |ids, f|
+      ids << f.dirname.basename.to_s if f.basename.to_s == file
+      ids
+    end 
+  end
+
+  def list
+    Pathname.glob(@dir.to_s + '/*/*').map {|f| f.basename }
+  end
+
+end
+
+GISTY_DIR = ENV['GISTY_DIR']
+EDITOR    = ENV['EDITOR'] || 'vi'
+
+def main
+  @g = Gistpad.new(GISTY_DIR)
+  args, opts = options!(ARGV)
+  if opts[:list]
+    puts @g.list
+  elsif opts[:zshcomp]
+    puts DATA.read
+  else
+    file = args[0] or raise 'Error: filename not specified'
+    id = search(file) or raise 'Error: file not found'
+    Kernel.system EDITOR, [GISTY_DIR, id, file].join('/')
+    opts[:commit] and @g.commit(id, file)
+    opts[:push] and @g.push(id, file)
+  end
+end
+
+def options!(argv)
+  opts = {}
+  args = argv.options do |o|
+    o.on('-p') {|v| opts[:push]    = v }
+    o.on('-c') {|v| opts[:commit]  = v }
+    o.on('-l') {|v| opts[:list]    = v }
+    o.on('-z') {|v| opts[:zshcomp] = v }
+    o.parse!
+  end
+  [args, opts]
+end
+
+def search(file)
+  ids = @g.index(file)
+  if ids.size == 0
+    nil
+  elsif ids.size == 1
+    ids[0]
+  else
+    files = ids.map {|i| [GISTY_DIR, i, file].join('/') }
+    i = prompt(files)
+    ids[i]
+  end
+end
+
+def prompt(files)
+  puts 'ambiguous filename:'
+  files.each_with_index do |f, i|
+    puts "\t[#{i}] #{f} # #{File.open(f).gets}"
+  end
+  while buf = Readline.readline('> ')
+    next unless buf =~ /^\d+$/
+    break if files[buf.to_i]
+  end
+  buf.to_i
+end
+
+Signal.trap(:INT) { exit }
+begin main rescue puts $! end
+
+__END__
+#compdef gistpad
+local context list
+list=$(gistpad -l)
+typeset -A opt_args
+_multi_parts '\n' "($list)" && return 0
