@@ -1,0 +1,16 @@
+startup_message off
+hardstatus alwayslastline "[%02c] %`%-w%{=b bw}%n %t%{-}%+w"
+escape ^z^z
+autodetach on
+
+# emacs-like window manipulation
+bind -c REGION 2 split
+bind -c REGION 1 only
+bind -c REGION 0 remove
+bind -c REGION o focus
+bind -c REGION \^ resize
+bind x command -c REGION
+
+# startrek fortune blanker
+idle 1200
+blankerprg /opt/local/bin/fortune startrek
