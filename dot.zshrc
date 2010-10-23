@@ -34,7 +34,7 @@ function history-all { history -E 1 }
 LISTMAX=0
 
 # 補完の利用設定
-fpath=(~/comp ${fpath})
+fpath=(~/.zsh/functions/Completion/ ${fpath})
 autoload -U compinit; compinit
 
 # sudo でも補完の対象
