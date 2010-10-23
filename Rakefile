@@ -26,3 +26,8 @@ task :commit do
   sh "cd #{HOME}/dev/environment/; git commit"
 end
 
+desc 'push all files'
+task :push do
+  sh "cd #{HOME}/dev/environment/; git push origin master"
+end
+
