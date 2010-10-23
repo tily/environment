@@ -1,6 +1,5 @@
 require 'rake/clean'
 
-# config
 HOME  = ENV['HOME']
 FILES = ['Rakefile', '.bashrc', '.zshrc', '.vimrc', '.screenrc']
 
