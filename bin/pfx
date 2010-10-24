@@ -1,0 +1,3 @@
+#!/bin/sh
+# プロフィール名を指定して Firefox を起動する
+/Applications/Firefox.app/Contents/MacOS/firefox-bin -P $1

@@ -1,0 +1,153 @@
+#!/usr//bin/env ruby
+# ruby version of exthtml by fuba (http://fuba.jottit.com/exthtml)
+require 'uri'
+require 'optparse'
+require 'rubygems'
+require 'mechanize'
+
+# http://d.hatena.ne.jp/kitamomonga/20080618/ruby_mechanize_firefox3_cookie
+module WWW
+  class Mechanize
+    class CookieJar
+      def load_cookiesqlite(cookie_path, hosts)
+        require 'sqlite3'
+        cookie = String.new
+        Dir.chdir(::File.dirname(cookie_path)) do |_|
+          db = SQLite3::Database.new(::File.basename(cookie_path))
+          tf = Proc.new{|s| s.to_i.zero? ? 'TRUE' : 'FALSE'}
+          hosts.to_a.each do |s|
+            cookie_host = SQLite3::Database.quote(s)
+            exec_str = "SELECT host, isHttpOnly, path, isSecure, expiry, name, value FROM moz_cookies WHERE host='#{cookie_host}'"
+            db.execute(exec_str){|r|
+              cookie << [r[0], tf.call(r[1]), r[2], tf.call(r[3]), r[4], r[5], r[6]].join("\t") << "\n"
+            }
+          end
+          db.close
+        end
+        puts cookie
+        raise 'No cookies available on cookies.sqlite' if cookie.empty?
+        load_cookiestxt(StringIO.new(cookie))
+      end
+    end
+  end
+end
+
+def expand_url(exp)
+  urls = []
+  format = '%d'
+  if(exp.sub!(/\[(\d+)\-(\d+)\]/, '[NUM]'))
+    if $1 <= $2
+      first, last = $1, $2
+    else
+      first, last = $2, $1
+    end
+    if(first =~ /^0\d/)
+      format = '%0' + last.length.to_s + 'd'
+    end
+    first.upto(last) do |num|
+      url = exp.dup
+      numstr = sprintf(format, num)
+      url.sub!(/\[NUM\]/, numstr)
+      urls.push(url)
+    end
+  else
+    return exp
+  end
+  return urls
+end
+
+def proc(procedure, n, v, u)
+  return eval(procedure)
+end
+
+def extract(opt)
+  mech      = opt[:mech]
+  xpath     = opt[:xpath]
+  depth     = opt[:depth]
+  url       = opt[:url]
+  referer   = opt[:referer]
+  procedure = opt[:procedure]
+  weight    = opt[:weight] || 0
+
+  if(opt[:cookie])
+    elems = URI.split(url)[2].split('.')
+    hosts = []
+    0.upto(elems.length-1) do |i|
+      base = elems[i..elems.length].join('.')
+      hosts.push(base, '.' + base)
+    end
+    mech.cookie_jar.load_cookiesqlite(opt[:cookie], hosts)
+  end
+  hist = Hash.new
+  while(depth != 0 && url != '')
+    page = mech.get(url, referer)
+    page.search(xpath).each do |node|
+      if opt[:as_xml] && node.type == Nokogiri::XML::Node::ELEMENT_NODE
+        value = node.to_html
+      else
+        value = node.content + "\n"
+      end
+      value = proc(procedure, node, value, url) if procedure
+      print value
+    end
+
+    referer = url
+    url = ''
+
+    if(opt[:nextlink])
+      urls = page.search(opt[:nextlink]).map {|v| v = v.text}
+      url = urls.first if urls
+    end
+    sleep weight
+    depth -= 1
+  end
+end
+
+url = ARGV.pop.dup
+options_base = Hash.new
+opt = OptionParser.new
+opt.version = '20090504_1'
+opt.on('-x', '--xpath XPATH',         String   ) {|v| options_base[:xpath]     = v }
+opt.on('-e', '--referer REFERER',     String   ) {|v| options_base[:referer]   = v }
+opt.on('-c', '--cookie-jar COOKIE',   String   ) {|v| options_base[:cookie]    = v }
+opt.on('-a', '--agent AGENT',         String   ) {|v| options_base[:agent]     = v }
+opt.on('-n', '--next-link NEXTLINK',  String   ) {|v| options_base[:nextlink]  = v }
+opt.on('-d', '--depth DEPTH',         Integer  ) {|v| options_base[:depth]     = v }
+opt.on('-s', '--as-source',           TrueClass) {|v| options_base[:as_xml]    = v }
+opt.on('-p', '--procedure PROCEDURE', String   ) {|v| options_base[:procedure] = v }
+opt.on('-w WEIGHT',                   Integer  ) {|v| options_base[:weight]    = v }
+opt.parse!(ARGV)
+options_base[:weight] ||= 0
+if(options_base[:depth].nil?)
+  options_base[:depth] = 1
+else
+  options_base[:depth] += 1
+end
+
+unless(url && options_base[:xpath])
+ puts opt.help
+ exit
+end
+
+mech = WWW::Mechanize.new
+mech.user_agent_alias = options_base[:agent] if options_base[:agent]
+options_base[:mech] = mech
+
+url_list = []
+if(url == '-')
+  while(line = $stdin.gets)
+    url_list.push(line.chomp!)
+  end
+else
+  if(url =~ %r#[\d+\-\d+]#)
+    url_list = expand_url(url)
+  else
+    url_list = url
+  end
+end
+
+url_list.each do |url_line|
+  options = options_base
+  options[:url] = url_line
+  extract(options)
+end
