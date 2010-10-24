@@ -148,5 +148,9 @@ fi
 ssh-add
 
 if [ "$TERM" != "screen" ]; then
-    screen -x main
+    if [ `screen -ls | grep main | wc -l` = 0 ]; then
+        screen -S main
+    else
+        screen -x main
+    fi
 fi
