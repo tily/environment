@@ -1,7 +1,7 @@
 require 'rake/clean'
 
 HOME  = ENV['HOME']
-FILES = ['Rakefile', '.bashrc', '.zshrc', '.vimrc', '.screenrc', 'bin', '.zsh']
+FILES = ['Rakefile', '.bashrc', '.bash_profile', '.zshrc', '.vimrc', '.screenrc', 'bin', '.zsh']
 
 CLEAN.include(FILES.map {|f| "#{HOME}/#{f}"})
 
