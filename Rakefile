@@ -33,3 +33,8 @@ task :env_push do
   sh "cd #{HOME}/dev/environment/; git push origin master"
 end
 
+desc 'environment git pull'
+task :env_pull do
+  sh "cd #{HOME}/dev/environment/; git pull origin master"
+end
+
