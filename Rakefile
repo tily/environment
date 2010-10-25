@@ -38,3 +38,8 @@ task :env_pull do
   sh "cd #{HOME}/dev/environment/; git pull origin master"
 end
 
+desc 'environment git status'
+task :env_status do
+  sh "cd #{HOME}/dev/environment/; git status"
+end
+
