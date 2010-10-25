@@ -1,7 +1,7 @@
 
 # 環境変数の設定
 export LANG=ja_JP.UTF-8
-export PATH=~/bin:/usr/bin:/opt/local/bin:/opt/local/sbin:/usr/local/mysql/bin:/usr/local/share/plagger:$PATH
+export PATH=~/bin:/usr/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/mysql/bin:/usr/local/share/plagger:$PATH
 export MANPATH=/usr/local/man:/usr/share/man
 export GISTY_DIR="$HOME/gists"
 export EDITOR=vi
