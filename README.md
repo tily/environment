@@ -15,6 +15,11 @@
     git clone git@github.com:tily/environment.git ~/dev/environment
     rake -f ~/dev/environment/Rakefile env_install
 
+ * git 自体のセットアップ
+   * [Help.GitHub - Generating SSH keys (OSX)](http://help.github.com/mac-key-setup/)
+   * [Help.GitHub - Generating SSH keys (OSX)](http://help.github.com/mac-key-setup/)
+   * [Help.GitHub - Setting user name, email and GitHub token](http://help.github.com/git-email-settings/)
+
 クリーンアップ
 --------------
 
