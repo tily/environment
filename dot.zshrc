@@ -145,8 +145,6 @@ if [ "$TERM" = "screen" ]; then
     chpwd
 fi
 
-ssh-add
-
 if [ "$TERM" != "screen" ]; then
     if [ `screen -ls | grep main | wc -l` = 0 ]; then
         screen -S main
