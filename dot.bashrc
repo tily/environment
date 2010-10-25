@@ -4,7 +4,7 @@
 
 # start zsh
 if [ -x `which zsh` ] ; then
-  exec ssh-agent zsh
+  exec zsh
 fi
 
 # If not running interactively, don't do anything
