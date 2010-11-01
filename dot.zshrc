@@ -5,6 +5,8 @@ export PATH=~/bin:/usr/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/lo
 export MANPATH=/usr/local/man:/usr/share/man
 export GISTY_DIR="$HOME/gists"
 export EDITOR=vi
+export GEM_HOME="$HOME/.gem"
+export GEM_PATH="$HOME/.gem"
 
 # 関数
 find-grep () { find . -type f -print | xargs grep -n --binary-files=without-match $@ }
