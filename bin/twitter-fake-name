@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'oauth/cli/twitter'
+require 'faker/japanese'
+include OAuth::CLI::Twitter
+
+at = get_access_token(:file => '.twitter-fake-name')
+name = Faker::Japanese::Name.name
+at.post('/1/account/update_profile.json', :name => name)
